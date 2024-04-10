@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.62% </span>
+                <span class="strong">57.61% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>84/151</span>
+                <span class='fraction'>87/151</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">58.33% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>7/12</span>
+                <span class='fraction'>9/12</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.62% </span>
+                <span class="strong">57.61% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>84/151</span>
+                <span class='fraction'>87/151</span>
             </div>
         
             
@@ -247,29 +247,17 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -281,11 +269,23 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -401,12 +401,12 @@ export class jsonCards {
     err: string | undefined ,data: string | undefined ) =&gt; void) {
         readFile(`${directorioUsuario}/${card.id_}.json`, (err) =&gt; {
           if (err){
-            writeFile(`${directorioUsuario}/${card.id_}.json`, JSON.stringify(card),()=&gt;{
+            writeFile(`${directorioUsuario}/${card.id_}.json`, JSON.stringify(card),() =&gt; {
               callback(undefined, 'Card Added')
             });
-          }<span class="branch-0 cbranch-no" title="branch not covered" > else {</span>
-<span class="cstat-no" title="statement not covered" >            callback('Card alredy exist', undefined);            </span>
-<span class="cstat-no" title="statement not covered" >          }</span>
+          } else {
+            callback('Card alredy exist', undefined);            
+          }
         });
   }
 &nbsp;
@@ -430,8 +430,8 @@ export class jsonCards {
   showCard(showIDCard: number, callback: (
       err: string | undefined , data: string | undefined ) =&gt; void) {
         readFile(`${directorioUsuario}/${showIDCard}.json`, (err, data) =&gt;{
-          if (err)<span class="branch-0 cbranch-no" title="branch not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >            callback(err.message, undefined);</span>
+          if (err){
+            callback('Card not found', undefined);
           } else if (data){
             callback(undefined, data.toString());
           }
@@ -523,7 +523,7 @@ export class jsonCards {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-04-10T10:07:21.628Z
+                at 2024-04-10T10:16:06.725Z
             </div>
         <script src="prettify.js"></script>
         <script>

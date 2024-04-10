@@ -15,11 +15,30 @@ describe("Asynchronous function weatherInfo tests", () => {
       }
     });
   });
+
+  it("Añadiendo carta erronea", (done) => {
+    const magic = new magicCard(12, "Cazador", 16, color.multicolor, tipe.creature, rare.mythicRare, "No puede atacar cuerpo a cuerpo", 150, 100, 1000);
+    controller.add(magic, (err,_) => {
+      if (err) {
+        expect(err).to.be.equal('Card alredy exist');
+        done();
+      }
+    });
+  });
+
   it("Mostrando carta", (done) => {
     controller.showCard(12, (_,data) => {
       if (data) {
         const jsondata = JSON.parse(data);
         expect(jsondata.id_).to.be.equal(12);
+        done();
+      }
+    });
+  });
+  it("Mostrando carta erronea", (done) => {
+    controller.showCard(34, (err,_) => {
+      if (err) {
+        expect(err).to.be.equal('Card not found',);
         done();
       }
     });

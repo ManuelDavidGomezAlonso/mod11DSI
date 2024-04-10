@@ -34,7 +34,7 @@ export class jsonCards {
     err: string | undefined ,data: string | undefined ) => void) {
         readFile(`${directorioUsuario}/${card.id_}.json`, (err) => {
           if (err){
-            writeFile(`${directorioUsuario}/${card.id_}.json`, JSON.stringify(card),()=>{
+            writeFile(`${directorioUsuario}/${card.id_}.json`, JSON.stringify(card),() => {
               callback(undefined, 'Card Added')
             });
           } else {
@@ -64,7 +64,7 @@ export class jsonCards {
       err: string | undefined , data: string | undefined ) => void) {
         readFile(`${directorioUsuario}/${showIDCard}.json`, (err, data) =>{
           if (err){
-            callback(err.message, undefined);
+            callback('Card not found', undefined);
           } else if (data){
             callback(undefined, data.toString());
           }
