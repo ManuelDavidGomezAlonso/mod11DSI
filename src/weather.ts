@@ -1,51 +1,151 @@
-import request from 'request';
+/**
+ * @fileoverview jsonController.ts - Controla las acciones sobre los Json que representan las cartas de Magic.
+ */
 
-export const weatherInfo = (location: string, callback: (
-  err: string | undefined, data: request.Response | undefined) => void) => {
-  const url = `http://api.weatherstack.com/current?access_key=aeb97bf5fbae1e796215bb0be875d548&query=${encodeURIComponent(location)}&units=m`;
+import * as fs from "fs";
+import { magicCard } from "./magiCard.js";
+import chalk from "chalk";
+import {writeFile,readFile} from 'fs';
 
-  request({url: url, json: true}, (error: Error, response) => {
-    if (error) {
-      callback(`Weatherstack API is not available: ${error.message}`,
-          undefined);
-    } else if (response.body.error) {
-      callback(`Weatherstack API error: ${response.body.error.type}`,
-          undefined);
-    } else {
-      callback(undefined, response);
+const directorioUsuario = `./src/usuarios/${process.env.USER}`;
+
+/**
+ * Clase jsonCards, implementa los métodos para añadir, eliminar, mostrar, modificar y mostrar todas las cartas de un usuario.
+ */
+export class jsonCards {
+  /**
+   * @brief Constructor de la clase jsonCards.
+   * Se verifica si existe el directorio del usuario, si no existe se crea.
+   */
+  constructor() {
+    if (!fs.existsSync("./src/usuarios")) {
+      fs.mkdirSync("./src/usuarios");
     }
-  });
-};
-
-export const coordinatesInfo = (location: string, callback:(
-  err: string | undefined, data: request.Response | undefined) => void) => {
-  const url = `http://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json?access_token=pk.eyJ1IjoiZWR1c2VncmUiLCJhIjoiY2tubmdoMjE0MDA3ODJubndrNnBuenlteCJ9.dtIf0MrkO0Oe12ZM_I7pGw&limit=1`;
-
-  request({url: url, json: true}, (error: Error, response) => {
-    if (error) {
-      callback(`Mapbox API is not available: ${error.message}`, undefined);
-    } else if (response.body.features.length === 0) {
-      callback(`Mapbox API error: no location found`, undefined);
-    } else {
-      callback(undefined, response);
+    if (!fs.existsSync(directorioUsuario)) {
+      fs.mkdirSync(directorioUsuario);
     }
-  });
-};
+  }
 
-coordinatesInfo(process.argv[2], (coordErr, coordData) => {
-  if (coordErr) {
-    console.log(coordErr);
-  } else if (coordData) {
-    const longitude: number = coordData.body.features[0].center[0];
-    const latitude: number = coordData.body.features[0].center[1];
-    weatherInfo(`${latitude},${longitude}`, (weatherErr, weatherData) => {
-      if (weatherErr) {
-        console.log(weatherErr);
-      } else if (weatherData) {
-        console.log(`Currently, the temperature is ` +
-          `${weatherData.body.current.temperature} degrees in ` +
-          `${weatherData.body.location.name}`);
+  /**
+   * @brief Añade una carta al directorio del usuario, utilización patrón callback.
+   * @param card Carta a añadir.
+   */
+  add(card: magicCard, callback: (
+    err: string | undefined ,data: string | undefined ) => void) {
+        readFile(`${directorioUsuario}/${card.id_}.json`, (err) => {
+          if (err){
+            writeFile(`${directorioUsuario}/${card.id_}.json`, JSON.stringify(card),()=>{
+              callback(undefined, 'Card Added')
+            });
+          } else {
+            callback('Card alredy exist', undefined);            
+          }
+        });
+  }
+
+  /**
+   * @brief Elimina una carta del directorio del usuario.
+   * @param cardID ID de la carta a eliminar.
+   */
+  delete(cardID: number) {
+    if (fs.existsSync(`${directorioUsuario}/${cardID}.json`)) {
+      fs.unlinkSync(`${directorioUsuario}/${cardID}.json`);
+      console.log(chalk.green("Card deleted"));
+    } else {
+      console.log('card not found');
+    }
+  }
+
+  /**
+   * @brief Muestra una carta del directorio del usuario, utilización del patrón callback.
+   * @param showIDCard ID de la carta a mostrar.
+   */
+  showCard(showIDCard: number, callback: (
+      err: string | undefined , data: string | undefined ) => void) {
+        readFile(`${directorioUsuario}/${showIDCard}.json`, (err, data) =>{
+          if (err){
+            callback(err.message, undefined);
+          } else if (data){
+            callback(undefined, data.toString());
+          }
+        });
+    }
+  /**
+   * @brief Actualiza una carta del directorio del usuario, lo que quiere decir que la carta debe existir.
+   * @param card Carta a actualizar.
+   */
+  update(card: magicCard) {
+    if (fs.existsSync(`${directorioUsuario}/${card.id_}.json`)) {
+      fs.writeFileSync(
+        `${directorioUsuario}/${card.id_}.json`,
+        JSON.stringify(card),
+      );
+      console.log(chalk.green("Card updated"));
+    } else {
+      throw chalk.red(new Error(`Card not found in ${process.env.USER}`));
+    }
+  }
+
+  /**
+   * @breif Modifica una propiedad de una carta existente.
+   * @param cardID Id de la carta a modificar.
+   * @param valueToChange Campo a modificar.
+   * @param newValue Nuevo valor del campo.
+   * Se verifica que la carta exista y que el campo a modificar exista en la carta.
+   */
+  modify(cardID: number, valueToChange: string, newValue: string | number) {
+    if (fs.existsSync(`${directorioUsuario}/${cardID}.json`)) {
+      const card = fs.readFileSync(
+        `${directorioUsuario}/${cardID}.json`,
+        "utf-8",
+      );
+      const cardObj = JSON.parse(card);
+      if (cardObj[valueToChange] !== undefined) {
+        cardObj[valueToChange] = newValue;
+        fs.writeFileSync(
+          `${directorioUsuario}/${cardID}.json`,
+          JSON.stringify(cardObj),
+        );
+        console.log(chalk.green("Card modified"));
+      } else {
+        throw chalk.red(new Error("Property not found in object magicCard"));
+      }
+    } else {
+      throw chalk.red(new Error(`Card not found in ${process.env.USER}`));
+    }
+  }
+
+  /**
+   * @brief Muestra todas las cartas del directorio del usuario.
+   * Se leen todos los archivos del directorio del usuario y se muestran.
+   */
+  showAllCards() {
+    const cards = fs.readdirSync(directorioUsuario);
+    const cardsArray: magicCard[] = [];
+    cards.forEach((card) => {
+      cardsArray.push(
+        JSON.parse(fs.readFileSync(`${directorioUsuario}/${card}`, "utf-8")),
+      );
+    });
+    console.log(chalk.green("Showing cards"));
+    cardsArray.forEach((card) => {
+      console.log(
+        chalk.blue(
+          "-----------------------------------------------------------------------------------------------------------------",
+        ),
+      );
+      console.log(chalk.blue(`ID: ${card.id_}`));
+      console.log(chalk.blue(`Name: ${card.name_}`));
+      console.log(chalk.blue(`Mana Cost: ${card.manaCost_}`));
+      console.log(chalk.blue(`Color: ${card.color_}`));
+      console.log(chalk.blue(`Type: ${card.typo_}`));
+      console.log(chalk.blue(`Rare: ${card.rare_}`));
+      console.log(chalk.blue(`Rules: ${card.rules_}`));
+      console.log(chalk.blue(`Loyalty: ${card.loyalty_}`));
+      console.log(chalk.blue(`Value: ${card.value_}`));
+      if (card.strRes_) {
+        console.log(chalk.blue(`Strength/Resistance: ${card.strRes_}`));
       }
     });
   }
-});
+}

@@ -1,41 +1,25 @@
 import "mocha";
 import { expect } from "chai";
-import { weatherInfo, coordinatesInfo } from "../src/weather.js";
+import { jsonCards } from "../src/weather.js";
+import { magicCard, color,tipe, rare } from "../src/magiCard.js";
 
 describe("Asynchronous function weatherInfo tests", () => {
-  it("weatherInfo should get weather information", (done) => {
-    weatherInfo("Tenerife, Spain", (_, data) => {
+  const controller = new jsonCards();
+  it("Añadiendo carta", (done) => {
+    controller.delete(12);
+    const magic = new magicCard(12, "Cazador", 16, color.multicolor, tipe.creature, rare.mythicRare, "No puede atacar cuerpo a cuerpo", 150, 100, 1000);
+    controller.add(magic, (_,data) => {
       if (data) {
-        expect(data.body.location.name).to.be.equal("Tenerife");
+        expect(data).to.be.equal("Card Added");
         done();
       }
     });
   });
-
-  it("weatherInfo should provide an error", (done) => {
-    weatherInfo("12wherever", (error) => {
-      if (error) {
-        expect(error).to.be.equal("Weatherstack API error: request_failed");
-        done();
-      }
-    });
-  });
-});
-
-describe("Asynchronous function coordinatesInfo tests", () => {
-  it("coordinatesInfo should get coordinates information", (done) => {
-    coordinatesInfo("Barcelona, Spain", (_, data) => {
+  it("Mostrando carta", (done) => {
+    controller.showCard(12, (_,data) => {
       if (data) {
-        expect(data.body.features[0].center).to.be.eql([2.177432, 41.382894]);
-        done();
-      }
-    });
-  });
-
-  it("coordinatesInfo should provide an error", (done) => {
-    coordinatesInfo("12wherever", (error) => {
-      if (error) {
-        expect(error).to.be.equal("Mapbox API error: no location found");
+        const jsondata = JSON.parse(data);
+        expect(jsondata.id_).to.be.equal(12);
         done();
       }
     });
